@@ -24,6 +24,9 @@ const S = {
   sleepAt: 0, sleepEnd: false, ttsToken: 0, ttsStart: 0,
 };
 const audio = $('#audio');
+const ICON = { play: '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>', pause: '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>' };
+function setPlayIcon(on) { $('#btnPlay').innerHTML = on ? ICON.pause : ICON.play; }
+function setProg(p) { const s = $('#seek'); s.value = p; s.style.setProperty('--p', (p / 10) + '%'); }
 
 /* ---------------- 工具 ---------------- */
 function toast(msg, ms = 2200) {
@@ -76,7 +79,7 @@ function renderShelf() {
     const p = progOf(b.key);
     const d = document.createElement('div'); d.className = 'bk';
     d.innerHTML = `<div class="cv" style="${coverStyle(b.title)}">${b.audio ? '<span class="badge">🎧 有声</span>' : ''}
-      <div class="t">${esc(b.title)}</div><div class="a">${esc(b.author || '')}</div></div>
+      <div class="t"${b.audio ? ' style="margin-top:20px"' : ''}>${esc(b.title)}</div><div class="a">${esc(b.author || '')}</div></div>
       <div class="name">${esc(b.title)}</div><div class="pg">${p ? `读到 第${p.ch + 1}章` : `${b.chapters} 章`}</div>`;
     d.onclick = () => openBook(b);
     if (b.local) { let tm; d.oncontextmenu = e => { e.preventDefault(); delLocal(b); }; d.ontouchstart = () => (tm = setTimeout(() => delLocal(b), 700)); d.ontouchend = () => clearTimeout(tm); }
@@ -147,7 +150,7 @@ function loadChapter(ci, si = 0, autoplay = false) {
     audio.load();
   } else { audio.removeAttribute('src'); audio.load(); }
   $('#modeTag').textContent = S.mode === 'audio' ? '🎧 高质量有声版' : '🔈 手机自带朗读（本书暂无预生成音频）';
-  $('#seek').value = 0; $('#tCur').textContent = '0:00';
+  setProg(0); $('#tCur').textContent = '0:00';
   $('#tTot').textContent = S.mode === 'audio' ? '--:--' : `${S.flat.length}句`;
   highlight(si, true);
   if (S.mode === 'audio' && si > 0) audio.addEventListener('loadedmetadata', function f() { audio.removeEventListener('loadedmetadata', f); audio.currentTime = S.times[si] / 1000; }, { once: true });
@@ -189,15 +192,15 @@ function seekSentence(i) {
 }
 function play() {
   if (!S.book) return;
-  S.playing = true; $('#btnPlay').textContent = '⏸';
+  S.playing = true; setPlayIcon(true);
   if (S.mode === 'audio') {
     audio.playbackRate = S.speed;
-    audio.play().catch(e => { S.playing = false; $('#btnPlay').textContent = '▶'; toast('无法播放：' + (e.message || e.name)); });
+    audio.play().catch(e => { S.playing = false; setPlayIcon(false); toast('无法播放：' + (e.message || e.name)); });
   } else speakFrom(S.si);
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
 }
 function pause(silent) {
-  S.playing = false; $('#btnPlay').textContent = '▶';
+  S.playing = false; setPlayIcon(false);
   if (!audio.paused) audio.pause();
   speechSynthesis.cancel(); S.ttsToken++;
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
@@ -210,7 +213,7 @@ audio.addEventListener('timeupdate', () => {
   const ms = audio.currentTime * 1000, i = sentenceAt(ms);
   if (i !== S.si) { highlight(i); }
   const d = audio.duration || 0;
-  $('#tCur').textContent = fmt(audio.currentTime); if (d) { $('#tTot').textContent = fmt(d); $('#seek').value = Math.round(audio.currentTime / d * 1000); }
+  $('#tCur').textContent = fmt(audio.currentTime); if (d) { $('#tTot').textContent = fmt(d); setProg(Math.round(audio.currentTime / d * 1000)); }
   if (Math.floor(audio.currentTime) % 5 === 0) saveProg();
   checkSleep();
 });
@@ -243,7 +246,7 @@ function speakFrom(i) {
     if (tok !== S.ttsToken || !S.playing) return;
     if (k >= S.flat.length) return chapterEnded();
     highlight(k);
-    $('#seek').value = Math.round(k / S.flat.length * 1000); $('#tCur').textContent = `${k + 1}/${S.flat.length}`;
+    setProg(Math.round(k / S.flat.length * 1000)); $('#tCur').textContent = `${k + 1}/${S.flat.length}`;
     const u = new SpeechSynthesisUtterance(S.flat[k].text);
     const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'zh-CN';
     u.rate = S.speed;
@@ -266,7 +269,7 @@ function setSleepLabel() {
 setInterval(() => { if (S.sleepAt) { checkSleep(); setSleepLabel(); } }, 15000);
 function setSpeed(v) {
   S.speed = v; LS.set('td.speed', v); audio.playbackRate = v;
-  const b = $('#btnSpeed'); b.textContent = v.toFixed(v % 1 ? 2 : 1).replace(/0$/, '') + 'x'; b.classList.toggle('active', v !== 1);
+  const b = $('#btnSpeed'); b.textContent = (Number.isInteger(v) ? v.toFixed(1) : String(v)) + 'x'; b.classList.toggle('active', v !== 1);
   if (S.mode === 'tts' && S.playing) speakFrom(S.si);
 }
 function skip(sec) {
@@ -366,7 +369,7 @@ function bind() {
   $('#sheetMask').onclick = closeSheets; $$('[data-close]').forEach(b => (b.onclick = closeSheets));
   const seek = $('#seek');
   seek.oninput = () => {
-    if (S.mode === 'audio' && audio.duration) { audio.currentTime = seek.value / 1000 * audio.duration; $('#tCur').textContent = fmt(audio.currentTime); }
+    if (S.mode === 'audio' && audio.duration) { audio.currentTime = seek.value / 1000 * audio.duration; setProg(+seek.value); $('#tCur').textContent = fmt(audio.currentTime); }
     else if (S.mode === 'tts') seekSentence(Math.floor(seek.value / 1000 * (S.flat.length - 1)));
   };
   $('#btnSpeed').onclick = () => { const g = $('#speedList'); g.innerHTML = ''; SPEEDS.forEach(v => { const b = document.createElement('button'); b.textContent = v + 'x'; if (v === S.speed) b.className = 'on'; b.onclick = () => { setSpeed(v); closeSheets(); }; g.appendChild(b); }); openSheet('#sheetSpeed'); };
@@ -390,5 +393,6 @@ function bind() {
 /* ---------------- 启动 ---------------- */
 initLibs(); applySet(); bind(); setSpeed(S.speed); loadBooks();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+setPlayIcon(false);
 window.__td = S; // 便于调试
 })();
