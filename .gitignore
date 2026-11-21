@@ -1,6 +1,7 @@
-private/
+.tts_cache/
 library-private/
+private/
+.token
 *.pdf
 __pycache__/
 .DS_Store
-.token
