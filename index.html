@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#f6f1e7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="听读">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>听读 · 边看边听</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="paper">
+
+<!-- 书架 -->
+<main id="shelf" class="view">
+  <header class="top">
+    <h1>听读<small>边看边听</small></h1>
+    <div class="top-actions">
+      <button id="btnImport" class="pill">＋ 导入 TXT</button>
+      <input id="fileInput" type="file" accept=".txt,text/plain" hidden>
+    </div>
+  </header>
+  <section id="continue" hidden></section>
+  <h2 class="sec">书架</h2>
+  <div id="books" class="books"></div>
+  <p id="shelfHint" class="hint"></p>
+  <footer class="foot">
+    <span>听读 · 自用阅读器</span>
+    <a id="linkLib" href="#">连接私人书库</a>
+  </footer>
+</main>
+
+<!-- 阅读 -->
+<main id="reader" class="view" hidden>
+  <header class="rtop">
+    <button id="btnBack" class="ico" aria-label="返回">‹</button>
+    <div class="rtitle"><b id="rBook"></b><span id="rChap"></span></div>
+    <button id="btnToc" class="ico" aria-label="目录">☰</button>
+    <button id="btnSet" class="ico" aria-label="设置">Aa</button>
+  </header>
+  <article id="text" class="text"></article>
+  <div id="chapNav" class="chapnav"></div>
+
+  <footer class="player">
+    <div class="seek">
+      <span id="tCur">0:00</span>
+      <input id="seek" type="range" min="0" max="1000" value="0">
+      <span id="tTot">0:00</span>
+    </div>
+    <div class="ctrl">
+      <button id="btnSpeed" class="chip">1.0x</button>
+      <button id="btnPrev" class="ico" aria-label="上一章">⏮</button>
+      <button id="btnBack15" class="ico" aria-label="后退15秒">↺15</button>
+      <button id="btnPlay" class="play" aria-label="播放">▶</button>
+      <button id="btnFwd15" class="ico" aria-label="前进15秒">15↻</button>
+      <button id="btnNext" class="ico" aria-label="下一章">⏭</button>
+      <button id="btnSleep" class="chip">定时</button>
+    </div>
+    <div id="modeTag" class="modetag"></div>
+  </footer>
+</main>
+
+<!-- 底部抽屉 -->
+<div id="sheetMask" class="mask" hidden></div>
+<section id="sheetToc" class="sheet" hidden>
+  <h3>目录 <button class="x" data-close>✕</button></h3>
+  <ol id="tocList"></ol>
+</section>
+<section id="sheetSet" class="sheet" hidden>
+  <h3>阅读设置 <button class="x" data-close>✕</button></h3>
+  <div class="row"><label>主题</label>
+    <div class="seg" id="segTheme">
+      <button data-v="paper">纸张</button><button data-v="green">护眼</button><button data-v="night">夜间</button>
+    </div></div>
+  <div class="row"><label>字号</label>
+    <div class="seg" id="segFont"><button data-v="-1">A−</button><span id="fontVal">19</span><button data-v="1">A＋</button></div></div>
+  <div class="row"><label>行距</label>
+    <div class="seg" id="segLH"><button data-v="1.7">紧</button><button data-v="1.95">中</button><button data-v="2.2">松</button></div></div>
+  <div class="row"><label>自动跟随</label>
+    <div class="seg" id="segFollow"><button data-v="1">开</button><button data-v="0">关</button></div></div>
+  <div class="row"><label>朗读声音</label>
+    <div class="seg" id="segVoice"><select id="voiceSel"></select></div></div>
+  <p class="hint">章节有预生成音频时用高质量真人感音色；没有音频时用手机自带朗读。</p>
+</section>
+<section id="sheetSpeed" class="sheet small" hidden>
+  <h3>倍速 <button class="x" data-close>✕</button></h3>
+  <div class="grid" id="speedList"></div>
+</section>
+<section id="sheetSleep" class="sheet small" hidden>
+  <h3>定时关闭 <button class="x" data-close>✕</button></h3>
+  <div class="grid" id="sleepList"></div>
+</section>
+
+<audio id="audio" preload="auto" playsinline></audio>
+<div id="toast" class="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
