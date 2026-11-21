@@ -9,7 +9,9 @@ from pathlib import Path
 from lxml import etree, html as lhtml
 
 AD = re.compile(r'(更多(免费)?(电子书|书籍|好书)|下载.{0,6}(电子书|书籍)|ireadweek|zlibrary|z-library|公众号|微信号|关注.{0,6}(微信|公众号)|扫.{0,4}二维码|本书由.{0,10}(整理|制作)|www\.|https?://|1lib|mrbook)', re.I)
-SKIP_TITLE = re.compile(r'^(封面|封底|版权|版权页|书名页|扉页|目录|目\s*录|出版说明|插图|图片|广告|版权信息|献词|赞誉|推荐语|编辑推荐|作者简介|关于作者|书籍信息|cover|toc|contents|copyright|title\s*page)$', re.I)
+BOILER = re.compile(r'^(图书在版编目|CIP\s*数据|ISBN|版权所有|出版发行|责任编辑|责任校对|版次|印次|定价|书名原文|Copyright|All rights reserved|THE\s+[A-Z ]+by\s)', re.I)
+REFS = re.compile(r'^(尾注|注释|参考书目|参考数据|参考文献|索引|附注|地图\d*|图片来源|版权声明)')
+SKIP_TITLE = re.compile(r'^(封面|封底|版权|版权页|书名页|扉页|目录|目\s*录|出版说明|插图|图片|广告|版权信息|献词|赞誉|推荐语|编辑推荐|作者简介|关于作者|书籍信息|制作说明|版本说明|table\s+of\s+contents|cover|toc|contents|copyright|title\s*page)$', re.I)
 CH_RE = re.compile(r'^\s*(第[零〇一二三四五六七八九十百千两\d]+[章节回篇卷部集]|Chapter\s+\d+|序章|序言|序|前言|引言|后记|尾声|楔子|终章|结语|致谢)(?=$|[\s：:、.．—-])', re.I)
 MAXCH = 9000
 
@@ -124,9 +126,12 @@ def txt_chapters(path: Path):
 def finalize(chs, book_title):
     out = []
     for c in chs:
-        paras = [p for p in c['paras'] if not AD.search(p) and not re.fullmatch(r'[\d\s·\-—.]+', p) and len(p) > 1]
+        paras = [p for p in c['paras'] if '\ufffd' not in p and not BOILER.search(p) and not AD.search(p) and not re.fullmatch(r'[\d\s·\-—.]+', p) and len(p) > 1]
         title = (c['title'] or '').strip()
         n = sum(len(p) for p in paras)
+        txt_ = ''.join(paras); cjk_ = len(re.findall(r'[\u4e00-\u9fff]', txt_)) / max(1, len(txt_))
+        if (n < 1500 and re.search(r'CIP数据核字|ISBN|版权所有|未经出版者书面许可|出版发行|印数|责任印制', txt_)) or REFS.match(title) or (n > 200 and cjk_ < 0.3) or (n < 2500 and cjk_ < 0.5 and re.match(r'^(目录|目\s*录|总目录)', txt_)):
+            continue  # 尾注/参考书目/外文原版/目录页
         if SKIP_TITLE.match(title) or n < 120: 
             if n >= 120 and not SKIP_TITLE.match(title): pass
             else: continue
