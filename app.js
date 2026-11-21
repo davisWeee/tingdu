@@ -43,17 +43,26 @@ function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 /* ---------------- 书库 ---------------- */
 function initLibs() {
   const u = new URL(location.href);
-  const add = u.searchParams.get('lib');
+  const add = u.searchParams.get('lib'), key = u.searchParams.get('key');
   let libs = LS.get('td.libs', []);
-  if (add) {
-    if (!libs.includes(add)) libs.push(add);
-    LS.set('td.libs', libs);
-    u.searchParams.delete('lib'); history.replaceState(null, '', u.pathname + u.search + u.hash);
-    toast('已连接私人书库');
-  }
+  if (add) { if (!libs.includes(add)) libs.push(add); LS.set('td.libs', libs); toast('已连接私人书库'); }
+  if (key) { LS.set('td.key', key); toast('已保存书库钥匙'); }
+  if (add || key) { u.searchParams.delete('lib'); u.searchParams.delete('key'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
   S.libs = ['./library/', ...libs];
 }
+// 稳定入口：私人书库的公网地址（隧道）会变，页面同目录的 pointer.json 始终指向最新地址；钥匙只存在本机，不进仓库
+async function resolvePointer() {
+  const key = LS.get('td.key', '');
+  if (!key) return;
+  try {
+    const r = await fetch('pointer.json?t=' + Date.now(), { cache: 'no-store' });
+    const p = await r.json();
+    const lib = p.base.replace(/\/$/, '') + '/' + key + '/';
+    S.libs = ['./library/', lib, ...LS.get('td.libs', []).filter(x => x !== lib)];
+  } catch (e) { /* 取不到就沿用已保存的书库地址 */ }
+}
 async function loadBooks() {
+  await resolvePointer();
   const out = [];
   for (const base of S.libs) {
     try {
@@ -391,7 +400,7 @@ function bind() {
   $('#voiceSel').onchange = e => { S.set.voice = e.target.value; applySet(); if (S.mode === 'tts' && S.playing) speakFrom(S.si); };
   $('#btnImport').onclick = () => $('#fileInput').click();
   $('#fileInput').onchange = e => { const f = e.target.files[0]; if (f) importTxt(f); e.target.value = ''; };
-  $('#linkLib').onclick = e => { e.preventDefault(); const u = prompt('粘贴私人书库地址（以 / 结尾，里面有 index.json）：'); if (u) { const l = LS.get('td.libs', []); if (!l.includes(u)) l.push(u); LS.set('td.libs', l); S.libs = ['./library/', ...l]; loadBooks(); toast('已添加书库'); } };
+  $('#linkLib').onclick = e => { e.preventDefault(); const u = prompt('粘贴书库钥匙（一串字母数字），或完整书库地址（以 / 结尾）：'); if (u) { if (/^https?:/.test(u)) { const l = LS.get('td.libs', []); if (!l.includes(u)) l.push(u); LS.set('td.libs', l); S.libs = ['./library/', ...l]; } else LS.set('td.key', u.trim()); loadBooks(); toast('已添加书库'); } };
   document.addEventListener('keydown', e => {
     if (!S.book || /INPUT|SELECT/.test(e.target.tagName)) return;
     if (e.code === 'Space') { e.preventDefault(); toggle(); } else if (e.code === 'ArrowRight') skip(15); else if (e.code === 'ArrowLeft') skip(-15);

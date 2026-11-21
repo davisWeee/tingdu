@@ -10,7 +10,7 @@ with sync_playwright() as p:
     b = p.chromium.launch(executable_path=CHROME, headless=True, args=['--autoplay-policy=no-user-gesture-required'])
     pg = b.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, is_mobile=True, has_touch=True).new_page()
     errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
-    pg.goto(f'{app}?lib={lib}'); time.sleep(5)
+    pg.goto(f'{app}?key={lib}' if not lib.startswith('http') else f'{app}?lib={lib}'); time.sleep(5)
     names = pg.locator('.bk .name').all_inner_texts(); print('书架:', names)
     pg.locator('.bk', has_text=key).first.click(); pg.wait_for_selector('#text .s', timeout=20000)
     print('章节数:', pg.locator('#btnToc').count(), pg.evaluate('__td.book.chapters.length'), '首章:', pg.evaluate('__td.book.chapters[0].title'))
