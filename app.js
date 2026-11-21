@@ -75,17 +75,25 @@ function saveProg() {
 }
 function renderShelf() {
   const box = $('#books'); box.innerHTML = '';
-  S.books.forEach(b => {
-    const p = progOf(b.key);
+  const q = ($('#q').value || '').trim().toLowerCase();
+  // 分类标签
+  const genres = [...new Set(S.books.map(b => b.genre).filter(Boolean))];
+  const chips = $('#chips'); chips.hidden = genres.length < 2; chips.innerHTML = '';
+  ['全部', ...genres].forEach(g => { const b = document.createElement('button'); b.textContent = g; if ((S.genre || '全部') === g) b.className = 'on'; b.onclick = () => { S.genre = g === '全部' ? '' : g; renderShelf(); }; chips.appendChild(b); });
+  const list = S.books.filter(b => (!S.genre || b.genre === S.genre) && (!q || (b.title + (b.author || '')).toLowerCase().includes(q)));
+  list.forEach(b => {
+    const p = progOf(b.key); const pct = p ? Math.min(100, Math.round((p.ch + 1) / b.chapters * 100)) : 0;
     const d = document.createElement('div'); d.className = 'bk';
     d.innerHTML = `<div class="cv" style="${coverStyle(b.title)}">${b.audio ? '<span class="badge">🎧 有声</span>' : ''}
       <div class="t"${b.audio ? ' style="margin-top:20px"' : ''}>${esc(b.title)}</div><div class="a">${esc(b.author || '')}</div></div>
-      <div class="name">${esc(b.title)}</div><div class="pg">${p ? `读到 第${p.ch + 1}章` : `${b.chapters} 章`}</div>`;
+      <div class="name">${esc(b.title)}</div>
+      <div class="pg">${p ? `读到 第${p.ch + 1}/${b.chapters}章` : `${b.chapters} 章${b.hours ? ' · ' + b.hours + ' 小时' : ''}`}</div>
+      ${p ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}`;
     d.onclick = () => openBook(b);
     if (b.local) { let tm; d.oncontextmenu = e => { e.preventDefault(); delLocal(b); }; d.ontouchstart = () => (tm = setTimeout(() => delLocal(b), 700)); d.ontouchend = () => clearTimeout(tm); }
     box.appendChild(d);
   });
-  $('#shelfHint').textContent = S.books.length ? '' : '书架是空的：点右上角导入 TXT，或「连接私人书库」。';
+  $('#shelfHint').innerHTML = S.books.length ? (list.length ? '' : '没有匹配的书') : '书架是空的。<br>点右上角「导入 TXT」，或点页脚「连接私人书库」粘贴书库地址。';
   // 继续阅读
   const last = S.books.filter(b => progOf(b.key)).sort((a, b) => progOf(b.key).t - progOf(a.key).t)[0];
   const c = $('#continue');
@@ -359,6 +367,7 @@ async function importTxt(file) {
 
 /* ---------------- 事件 ---------------- */
 function bind() {
+  $('#q').oninput = () => renderShelf();
   $('#btnPlay').onclick = toggle;
   $('#btnPrev').onclick = () => loadChapter(S.ch - 1, 0, S.playing);
   $('#btnNext').onclick = () => loadChapter(S.ch + 1, 0, S.playing);

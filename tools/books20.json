@@ -1,0 +1,154 @@
+[
+ {
+  "id": "huozhe",
+  "title": "活着",
+  "author": "余华",
+  "genre": "小说",
+  "voice": "zh-CN-YunxiNeural",
+  "hash": "639771c9f6684bc86e60a036"
+ },
+ {
+  "id": "xiaowangzi",
+  "title": "小王子",
+  "author": "圣-埃克苏佩里",
+  "genre": "经典文学",
+  "voice": "zh-CN-XiaoyiNeural",
+  "hash": "63859dd4f5044b8ecd8de6f1"
+ },
+ {
+  "id": "jieyou",
+  "title": "解忧杂货店",
+  "author": "东野圭吾",
+  "genre": "小说",
+  "voice": "zh-CN-YunxiNeural",
+  "hash": "639bd537385b7a71c00213bc"
+ },
+ {
+  "id": "weicheng",
+  "title": "围城",
+  "author": "钱钟书",
+  "genre": "小说",
+  "voice": "zh-CN-YunxiNeural",
+  "hash": "638a8d5f7a51f876a5f97454"
+ },
+ {
+  "id": "fengzheng",
+  "title": "追风筝的人",
+  "author": "卡勒德·胡赛尼",
+  "genre": "小说",
+  "voice": "zh-CN-YunxiNeural",
+  "hash": "6349a0512b69807360df1ae1"
+ },
+ {
+  "id": "yueliang",
+  "title": "月亮与六便士",
+  "author": "毛姆",
+  "genre": "经典文学",
+  "voice": "zh-CN-XiaoyiNeural",
+  "hash": "62cee5134345a2ed6707f95c"
+ },
+ {
+  "id": "bainian",
+  "title": "百年孤独",
+  "author": "加西亚·马尔克斯",
+  "genre": "经典文学",
+  "voice": "zh-CN-XiaoyiNeural",
+  "hash": "6397833df6684bc86e60b68f"
+ },
+ {
+  "id": "waerdeng",
+  "title": "瓦尔登湖",
+  "author": "梭罗",
+  "genre": "经典文学",
+  "voice": "zh-CN-XiaoyiNeural",
+  "hash": "66cd97c80c16ab52c2fd4b3f"
+ },
+ {
+  "id": "taoyan",
+  "title": "被讨厌的勇气",
+  "author": "岸见一郎 古贺史健",
+  "genre": "心理成长",
+  "voice": "zh-CN-XiaoxiaoNeural",
+  "hash": "631c3580ed7c58781a3ce117"
+ },
+ {
+  "id": "yuanzi",
+  "title": "原子习惯",
+  "author": "詹姆斯·克利尔",
+  "genre": "心理成长",
+  "voice": "zh-CN-XiaoxiaoNeural",
+  "hash": "63b5a831e3010c01869539df"
+ },
+ {
+  "id": "feibaoli",
+  "title": "非暴力沟通（含实践手册）",
+  "author": "马歇尔·卢森堡",
+  "genre": "心理成长",
+  "voice": "zh-CN-XiaoxiaoNeural",
+  "hash": "638546d83d639df8975f15a5"
+ },
+ {
+  "id": "wuhe",
+  "title": "乌合之众",
+  "author": "古斯塔夫·勒庞",
+  "genre": "心理成长",
+  "voice": "zh-CN-XiaoxiaoNeural",
+  "hash": "63a11adc385b7a71c00526b6"
+ },
+ {
+  "id": "gougouqianqian",
+  "title": "小狗钱钱",
+  "author": "博多·舍费尔",
+  "genre": "投资理财",
+  "voice": "zh-CN-YunyangNeural",
+  "hash": "64fca3803f0adf0d102826f0"
+ },
+ {
+  "id": "fubaba",
+  "title": "富爸爸穷爸爸",
+  "author": "罗伯特·清崎",
+  "genre": "投资理财",
+  "voice": "zh-CN-YunyangNeural",
+  "hash": "63392cc0ec55e11e5d9061ce"
+ },
+ {
+  "id": "zuoshou",
+  "title": "股票作手回忆录",
+  "author": "埃德温·勒菲弗",
+  "genre": "投资理财",
+  "voice": "zh-CN-YunyangNeural",
+  "hash": "638de07a336bbf571fdd1ac4"
+ },
+ {
+  "id": "linqi",
+  "title": "彼得·林奇的成功投资",
+  "author": "彼得·林奇",
+  "genre": "投资理财",
+  "voice": "zh-CN-YunyangNeural",
+  "hash": "64dbdd25ae7231daf4ba2ffd"
+ },
+ {
+  "id": "wanli",
+  "title": "万历十五年",
+  "author": "黄仁宇",
+  "genre": "历史",
+  "voice": "zh-CN-YunyangNeural",
+  "hash": "63550c0e3a74cc3c2eb64541"
+ },
+ {
+  "id": "renleijianshi",
+  "title": "人类简史",
+  "author": "尤瓦尔·赫拉利",
+  "genre": "历史科普",
+  "voice": "zh-CN-YunyangNeural",
+  "hash": "63418307215c7b9fc0fd66ab"
+ },
+ {
+  "id": "sunzi",
+  "title": "孙子兵法·三十六计",
+  "author": "孙武",
+  "genre": "国学",
+  "voice": "zh-CN-YunjianNeural",
+  "hash": "62c31f141b16fbbba3c7680f"
+ }
+]

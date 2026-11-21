@@ -28,3 +28,9 @@
 
 ## 版权
 本仓库只含阅读器代码，不含任何书籍内容。书库请自行放在私有地址。
+
+## 更多工具（tools/）
+- `extract_book.py`：EPUB/TXT → chapters.json（自动识别章节、去广告页、超长章拆分）
+- `tg_bot.py` / `tg_search.py` / `tg_fetch.py`：用 Telegram 账号在搜书机器人批量搜索、下载（仅个人自用，session 不入库）
+- `build_all.py`：书单批处理（提取→合成→登记 index.json，2 本并行）
+- `qa_library.py`：书库数据体检；`e2e_test.py` / `e2e_remote.py`：端到端真点按钮验收

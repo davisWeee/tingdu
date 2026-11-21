@@ -72,7 +72,7 @@ def main():
     ap.add_argument('chapters'); ap.add_argument('--id', required=True); ap.add_argument('--out', required=True)
     ap.add_argument('--voice', default='zh-CN-XiaoxiaoNeural'); ap.add_argument('--rate', default='+0%')
     ap.add_argument('--only', default=''); ap.add_argument('--no-audio', action='store_true')
-    ap.add_argument('--conc', type=int, default=8)
+    ap.add_argument('--conc', type=int, default=8); ap.add_argument('--genre', default='')
     a = ap.parse_args()
     src = json.load(open(a.chapters, encoding='utf-8'))
     out = Path(a.out) / a.id; out.mkdir(parents=True, exist_ok=True)
@@ -110,8 +110,10 @@ def main():
     idx_path = Path(a.out) / 'index.json'
     idx = json.load(open(idx_path, encoding='utf-8')) if idx_path.exists() else []
     idx = [b for b in idx if b['id'] != a.id]
-    idx.append({'id': a.id, 'title': book['title'], 'author': book['author'], 'chapters': len(book['chapters']),
-                'audio': any('audio' in c for c in book['chapters'])})
+    chars = sum(len(s) for c in book['chapters'] for p in c['paras'] for s in p)
+    hours = round(sum(c.get('dur', 0) for c in book['chapters']) / 3600, 1)
+    idx.append({'id': a.id, 'title': book['title'], 'author': book['author'], 'genre': a.genre, 'chapters': len(book['chapters']),
+                'chars': chars, 'hours': hours, 'voice': a.voice, 'audio': all('audio' in c for c in book['chapters'])})
     json.dump(idx, open(idx_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('done', out)
 
