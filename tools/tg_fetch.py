@@ -11,17 +11,21 @@ async def main():
     c = client(); await c.connect()
     for b in books:
         if only and b['id'] not in only: continue
+        if b.get('chan'):
+            m = await c.get_messages(b['chan'], ids=b['msg']); tgt = out / f"{b['id']}.{b['ext']}"
+            if tgt.exists() and tgt.stat().st_size == m.file.size: print('skip(已完整)', b['id']); continue
+            await c.download_media(m, str(tgt)); print('OK(频道)', b['id'], m.file.name, m.file.size, flush=True); continue
         last = (await c.get_messages(BOT, limit=1))[0].id
-        doc = None
+        doc = None; t = []
         for attempt in range(4):
             await c.send_message(BOT, f"/start book_{b['hash']}")
             for _ in range(15):
                 await asyncio.sleep(2)
                 ms = [m async for m in c.iter_messages(BOT, limit=6) if m.id > last and not m.out]
-                d = [m for m in ms if m.file]; t = [m for m in ms if m.text and ('额度' in m.text or '不足' in m.text or '上限' in m.text)]
+                d = [m for m in ms if m.file]; t = [m for m in ms if m.text and ('额度' in m.text or '不足' in m.text or '上限' in m.text or '书币已用完' in m.text)]
                 if d: doc = d[0]; break
                 if t: print('  bot says:', t[0].text[:200]); break
-            if doc or (t if 't' in dir() and t else None): break
+            if doc or t: break
             await asyncio.sleep(4)
         if not doc: print('FAIL', b['id']); continue
         name = doc.file.name or ''; ext = (name.rsplit('.', 1)[-1] if '.' in name else 'bin').lower()

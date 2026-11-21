@@ -73,11 +73,29 @@ def epub_chapters(path: Path):
         try: raw = z.read(full)
         except KeyError: continue
         h_title, paras = html_to_paras(raw)
-        title = toc.get(full) or h_title or (paras[0][:24] if paras else '')
+        title = toc.get(full) or h_title or ''
         if paras and h_title and paras[0] == h_title: paras = paras[1:]
         if paras and toc.get(full) and paras[0] == toc[full]: paras = paras[1:]
         chapters.append({'title': title, 'paras': paras})
     return chapters
+
+def mobi_chapters(path: Path):
+    import mobi, shutil
+    tmp, fp = mobi.extract(str(path)); fp = Path(fp)
+    try:
+        if fp.suffix.lower() == '.epub': return epub_chapters(fp)
+        if fp.suffix.lower() in ('.html', '.htm'):
+            _, paras = html_to_paras(fp.read_bytes()); chs, cur = [], {'title': '', 'paras': []}
+            for p_ in paras:
+                if len(p_) < 40 and CH_RE.match(p_):
+                    if cur['paras']: chs.append(cur)
+                    cur = {'title': p_, 'paras': []}
+                else: cur['paras'].append(p_)
+            if cur['paras']: chs.append(cur)
+            return chs
+        raise RuntimeError(f'不支持的 mobi 解包结果: {fp}')
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 def decode_text(b: bytes) -> str:
     for enc in ('utf-8-sig', 'gb18030'):
@@ -107,7 +125,7 @@ def finalize(chs, book_title):
     out = []
     for c in chs:
         paras = [p for p in c['paras'] if not AD.search(p) and not re.fullmatch(r'[\d\s·\-—.]+', p) and len(p) > 1]
-        title = (c['title'] or '').strip() or '无标题'
+        title = (c['title'] or '').strip()
         n = sum(len(p) for p in paras)
         if SKIP_TITLE.match(title) or n < 120: 
             if n >= 120 and not SKIP_TITLE.match(title): pass
@@ -133,12 +151,25 @@ def finalize(chs, book_title):
         short = len(c['title']) <= 12
         for i, pa in enumerate(parts, 1):
             final.append({'title': f"{c['title']}（{i}/{len(parts)}）" if short else f"第 {i} 部分", 'paras': pa})
-    return final
+    # 规范标题：空标题/纯数字(含罗马数字)标题 → 「第N章」，N 为原章序；拆分的章带 (i/n)
+    seq = 0; part = 0; res = []
+    for c in final:
+        ti = c['title']; m = re.fullmatch(r'(.*?)（(\d+)/(\d+)）', ti)
+        base, suf = (m.group(1), f'（{m.group(2)}/{m.group(3)}）') if m else (ti, '')
+        if not base:
+            part += 1; res.append({'title': f'第{part}部分', 'paras': c['paras']}); continue
+        if re.fullmatch(r'[\d\s·.\-—IVXLCivxlc]+', base):
+            if not (m and int(m.group(2)) > 1): seq += 1
+            base = f'第{seq}章'
+        elif not m or int(m.group(2)) == 1: seq += 1
+        res.append({'title': base + suf, 'paras': c['paras']})
+    return res
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('src'); ap.add_argument('out'); ap.add_argument('--title', required=True); ap.add_argument('--author', default='')
     a = ap.parse_args(); src = Path(a.src)
-    chs = epub_chapters(src) if src.suffix.lower() == '.epub' else txt_chapters(src)
+    ext = src.suffix.lower()
+    chs = epub_chapters(src) if ext == '.epub' else mobi_chapters(src) if ext in ('.mobi', '.azw3', '.azw') else txt_chapters(src)
     chs = finalize(chs, a.title)
     json.dump({'title': a.title, 'author': a.author, 'chapters': chs}, open(a.out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     tot = sum(len(''.join(c['paras'])) for c in chs)

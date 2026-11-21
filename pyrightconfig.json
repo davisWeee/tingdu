@@ -1,0 +1,3 @@
+{ "pythonVersion": "3.9", "reportMissingImports": false, "reportMissingModuleSource": false,
+  "reportOptionalMemberAccess": false, "reportIncompatibleMethodOverride": false, "reportArgumentType": false,
+  "extraPaths": ["/Users/heyangyu/Library/Python/3.9/lib/python/site-packages"] }

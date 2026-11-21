@@ -37,7 +37,19 @@
   "author": "卡勒德·胡赛尼",
   "genre": "小说",
   "voice": "zh-CN-YunxiNeural",
-  "hash": "6349a0512b69807360df1ae1"
+  "chan": "TGebooks",
+  "msg": 2600,
+  "ext": "epub"
+ },
+ {
+  "id": "xianyiren",
+  "title": "嫌疑人X的献身",
+  "author": "东野圭吾",
+  "genre": "小说",
+  "voice": "zh-CN-YunxiNeural",
+  "chan": "TGebooks",
+  "msg": 8235,
+  "ext": "epub"
  },
  {
   "id": "yueliang",
@@ -45,7 +57,9 @@
   "author": "毛姆",
   "genre": "经典文学",
   "voice": "zh-CN-XiaoyiNeural",
-  "hash": "62cee5134345a2ed6707f95c"
+  "chan": "TGebooks",
+  "msg": 2329,
+  "ext": "epub"
  },
  {
   "id": "bainian",
@@ -53,7 +67,19 @@
   "author": "加西亚·马尔克斯",
   "genre": "经典文学",
   "voice": "zh-CN-XiaoyiNeural",
-  "hash": "6397833df6684bc86e60b68f"
+  "chan": "TGebooks",
+  "msg": 8055,
+  "ext": "epub"
+ },
+ {
+  "id": "laorenyuhai",
+  "title": "老人与海",
+  "author": "海明威",
+  "genre": "经典文学",
+  "voice": "zh-CN-XiaoyiNeural",
+  "chan": "TGebooks",
+  "msg": 20359,
+  "ext": "epub"
  },
  {
   "id": "waerdeng",
@@ -61,31 +87,29 @@
   "author": "梭罗",
   "genre": "经典文学",
   "voice": "zh-CN-XiaoyiNeural",
-  "hash": "66cd97c80c16ab52c2fd4b3f"
+  "chan": "TGebooks",
+  "msg": 3690,
+  "ext": "mobi"
  },
  {
-  "id": "taoyan",
-  "title": "被讨厌的勇气",
-  "author": "岸见一郎 古贺史健",
+  "id": "renxing",
+  "title": "人性的弱点",
+  "author": "戴尔·卡耐基",
   "genre": "心理成长",
   "voice": "zh-CN-XiaoxiaoNeural",
-  "hash": "631c3580ed7c58781a3ce117"
+  "chan": "TGebooks",
+  "msg": 222,
+  "ext": "epub"
  },
  {
-  "id": "yuanzi",
-  "title": "原子习惯",
-  "author": "詹姆斯·克利尔",
+  "id": "zikong",
+  "title": "自控力",
+  "author": "凯利·麦格尼格尔",
   "genre": "心理成长",
   "voice": "zh-CN-XiaoxiaoNeural",
-  "hash": "63b5a831e3010c01869539df"
- },
- {
-  "id": "feibaoli",
-  "title": "非暴力沟通（含实践手册）",
-  "author": "马歇尔·卢森堡",
-  "genre": "心理成长",
-  "voice": "zh-CN-XiaoxiaoNeural",
-  "hash": "638546d83d639df8975f15a5"
+  "chan": "TGebooks",
+  "msg": 2624,
+  "ext": "epub"
  },
  {
   "id": "wuhe",
@@ -93,7 +117,9 @@
   "author": "古斯塔夫·勒庞",
   "genre": "心理成长",
   "voice": "zh-CN-XiaoxiaoNeural",
-  "hash": "63a11adc385b7a71c00526b6"
+  "chan": "TGebooks",
+  "msg": 1759,
+  "ext": "epub"
  },
  {
   "id": "gougouqianqian",
@@ -101,7 +127,9 @@
   "author": "博多·舍费尔",
   "genre": "投资理财",
   "voice": "zh-CN-YunyangNeural",
-  "hash": "64fca3803f0adf0d102826f0"
+  "chan": "TGebooks",
+  "msg": 21303,
+  "ext": "epub"
  },
  {
   "id": "fubaba",
@@ -109,7 +137,9 @@
   "author": "罗伯特·清崎",
   "genre": "投资理财",
   "voice": "zh-CN-YunyangNeural",
-  "hash": "63392cc0ec55e11e5d9061ce"
+  "chan": "TGebooks",
+  "msg": 12073,
+  "ext": "azw3"
  },
  {
   "id": "zuoshou",
@@ -117,15 +147,9 @@
   "author": "埃德温·勒菲弗",
   "genre": "投资理财",
   "voice": "zh-CN-YunyangNeural",
-  "hash": "638de07a336bbf571fdd1ac4"
- },
- {
-  "id": "linqi",
-  "title": "彼得·林奇的成功投资",
-  "author": "彼得·林奇",
-  "genre": "投资理财",
-  "voice": "zh-CN-YunyangNeural",
-  "hash": "64dbdd25ae7231daf4ba2ffd"
+  "chan": "TGebooks",
+  "msg": 24783,
+  "ext": "mobi"
  },
  {
   "id": "wanli",
@@ -133,7 +157,9 @@
   "author": "黄仁宇",
   "genre": "历史",
   "voice": "zh-CN-YunyangNeural",
-  "hash": "63550c0e3a74cc3c2eb64541"
+  "chan": "TGebooks",
+  "msg": 22467,
+  "ext": "epub"
  },
  {
   "id": "renleijianshi",
@@ -141,7 +167,9 @@
   "author": "尤瓦尔·赫拉利",
   "genre": "历史科普",
   "voice": "zh-CN-YunyangNeural",
-  "hash": "63418307215c7b9fc0fd66ab"
+  "chan": "TGebooks",
+  "msg": 22354,
+  "ext": "epub"
  },
  {
   "id": "sunzi",
@@ -149,6 +177,8 @@
   "author": "孙武",
   "genre": "国学",
   "voice": "zh-CN-YunjianNeural",
-  "hash": "62c31f141b16fbbba3c7680f"
+  "chan": "TGebooks",
+  "msg": 174,
+  "ext": "epub"
  }
 ]

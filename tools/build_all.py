@@ -3,7 +3,7 @@
 用法: python3 tools/build_all.py [--lib library-private] [--workers 2] [--conc 16] [--wait]   # --wait: 源文件还没到齐就轮询等待
 状态写到 private/build_status.json，便于汇报进度。
 """
-import argparse, json, subprocess, sys, time, zipfile
+import argparse, atexit, json, signal, subprocess, sys, time, zipfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
@@ -19,15 +19,25 @@ def find_src(bid):
     fs = [f for f in (ROOT / 'private/books').glob(bid + '.*') if not f.name.endswith('.part')]
     return fs[0] if fs else None
 
+CHILDREN = []
+def _kill_children(*_):
+    for c in CHILDREN:
+        if c.poll() is None: c.terminate()
+    if _: sys.exit(1)
+atexit.register(_kill_children)
+signal.signal(signal.SIGTERM, _kill_children); signal.signal(signal.SIGINT, _kill_children)
+def run(cmd, lg):
+    c = subprocess.Popen(cmd, stdout=lg, stderr=lg); CHILDREN.append(c); return c.wait()
+
 def do_book(b, lib, conc):
     bid = b['id']; chap = ROOT / f'private/chap/{bid}.json'; log = ROOT / f'private/logs/{bid}.log'; log.parent.mkdir(exist_ok=True, parents=True)
     src = find_src(bid)
     with open(log, 'a') as lg:
         if not chap.exists():
-            r = subprocess.run([sys.executable, str(ROOT / 'tools/extract_book.py'), str(src), str(chap), '--title', b['title'], '--author', b['author']], stdout=lg, stderr=lg)
-            if r.returncode: return bid, 'extract-failed'
-        r = subprocess.run([sys.executable, str(ROOT / 'tools/make_audio.py'), str(chap), '--id', bid, '--out', str(ROOT / lib), '--voice', b['voice'], '--genre', b['genre'], '--conc', str(conc)], stdout=lg, stderr=lg)
-        return bid, 'ok' if r.returncode == 0 else 'tts-failed'
+            rc = run([sys.executable, str(ROOT / 'tools/extract_book.py'), str(src), str(chap), '--title', b['title'], '--author', b['author']], lg)
+            if rc: return bid, 'extract-failed'
+        rc = run([sys.executable, str(ROOT / 'tools/make_audio.py'), str(chap), '--id', bid, '--out', str(ROOT / lib), '--voice', b['voice'], '--genre', b['genre'], '--conc', str(conc)], lg)
+        return bid, 'ok' if rc == 0 else 'tts-failed'
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--lib', default='library-private'); ap.add_argument('--workers', type=int, default=2)

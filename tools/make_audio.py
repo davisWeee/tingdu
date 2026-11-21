@@ -36,7 +36,14 @@ def split_sentences(text: str):
             if cut < 30: cut = 80
             final.append(s[:cut + 1]); s = s[cut + 1:]
         final.append(s)
-    return final
+    # 没有任何可读字符的碎片（如单独的 “ ）合并进相邻句，否则 TTS 无音频会失败
+    speak = re.compile(r'[\u4e00-\u9fffA-Za-z0-9]')
+    res = []
+    for s in final:
+        if not speak.search(s) and res: res[-1] += s
+        else: res.append(s)
+    if len(res) > 1 and not speak.search(res[0]): res[1] = res[0] + res[1]; res = res[1:]
+    return res
 
 async def synth_all(jobs, voice, rate, cache: Path, conc=8):
     import edge_tts
@@ -76,12 +83,16 @@ def main():
     a = ap.parse_args()
     src = json.load(open(a.chapters, encoding='utf-8'))
     out = Path(a.out) / a.id; out.mkdir(parents=True, exist_ok=True)
+    import fcntl
+    lock = open(out / '.lock', 'w')
+    try: fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError: sys.exit(f'另一个 make_audio 正在处理 {a.id}，退出（避免互相删临时文件）')
     cache = Path(a.out) / '.tts_cache'; cache.mkdir(parents=True, exist_ok=True)
     only = {int(x) for x in a.only.split(',') if x}
     book = {'id': a.id, 'title': src['title'], 'author': src.get('author', ''), 'voice': a.voice, 'chapters': []}
     for ci, ch in enumerate(src['chapters'], 1):
         paras = [split_sentences(p) for p in ch['paras'] if p.strip()]
-        paras = [p for p in paras if p]
+        paras = [p for p in paras if p and re.search(r'[\u4e00-\u9fffA-Za-z0-9]', ''.join(p))]
         entry = {'title': ch['title'], 'paras': paras}
         sents = [s for p in paras for s in p]
         if not a.no_audio and sents and (not only or ci in only):

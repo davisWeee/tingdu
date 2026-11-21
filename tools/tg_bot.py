@@ -8,7 +8,19 @@ from telethon import TelegramClient
 from telethon.sessions import StringSession
 ROOT = Path(__file__).resolve().parent.parent
 BOT = 'sobook'
+_LOCK = None
 def client():
+    global _LOCK
+    import fcntl, time
+    if _LOCK is None:
+        _LOCK = open(ROOT / 'private/.tg.lock', 'w')
+        t0 = time.time()
+        while True:
+            try: fcntl.flock(_LOCK, fcntl.LOCK_EX | fcntl.LOCK_NB); break
+            except OSError:
+                if time.time() - t0 > 900: raise SystemExit('等 TG 锁超过 15 分钟，另一个 TG 任务还在跑')
+                if time.time() - t0 < 1: print('另一个 Telegram 任务在跑，排队等锁（同一账号不能并发多客户端）…', flush=True)
+                time.sleep(3)
     s = (ROOT / 'private/tl_session.txt').read_text().strip()
     return TelegramClient(StringSession(s), 2040, 'b18441a1ff607e10a989891a5462e627', proxy=('socks5', '127.0.0.1', 7897))
 def show(m):
@@ -33,4 +45,5 @@ async def main():
     elif a[0] == 'dl':
         m = await c.get_messages(BOT, ids=int(a[1])); p = await c.download_media(m, a[2]); print(p)
     await c.disconnect()
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())
